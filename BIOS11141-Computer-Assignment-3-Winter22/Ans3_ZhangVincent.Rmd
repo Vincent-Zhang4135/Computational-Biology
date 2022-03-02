@@ -1,0 +1,301 @@
+
+## Lab3 Answers File
+---
+Please write your answers into the space below the questions. Knit this file when you are done to check that all code runs. Remember to rename the file to contain *your actual* Last and First name.
+---
+
+RUN PREREQUISITE CODE CHUNK BELOW
+```{r}
+require("seqinr")
+library(tidyverse)
+sarscov2 <- read.fasta(file="sarscov2.fasta")
+```
+
+<span style="color:green"> 1.1 a\span
+```{r}
+choosebank("genbank")
+```
+
+```{r}
+humans_tRNA <- query("SP=homo sapiens AND M=tRNA")
+length(humans_tRNA$req)
+```
+<span style="color:blue"> 38 sequences \span
+
+
+<span style="color:green"> 1.1 b \span
+```{r}
+#Your code here
+sample_human_tRNA <- getSequence(humans_tRNA$req[[1]])
+length(sample_human_tRNA)
+
+GC_content <- function (seq) {
+  count <- 0
+  for (base in seq) {
+    if ((base == "g") || (base == "c")) {
+      count <- count + 1
+    }
+  }
+  
+  return(count / length(seq))
+}
+
+GC_content(sample_human_tRNA)
+```
+<span style="color:blue"> length: 78, GC_content: 0.3974  \span
+
+<span style="color:green"> 1.2 \span
+<span style="color:blue"> The difference between each of the banks mainly lies in whether they were annotated and reviewed or not, and thus whether they contain redundant sequences for example. Uniprot, for instance, Uniprot is richly annotated and is actually really a combination of SwissProt and trEMBL. The difference between SwissProt and trEMBL is that SwissProt contains only real protein databases, while trEMBL moreso just contains a database of translated nucleotide sequences. SwissProt is extremely reliable in that it is manually reviewed and annotated. Refseq is also not annotated, but it contains only non-redundant sequences.   \span
+
+<span style="color:green"> 2.1</span>
+```{r}
+#Your code here
+isStartCodon <- function(codon) {
+  start_codon <- c("a", "t", "g")
+  if (identical(start_codon, codon)) {
+    return(TRUE)
+  }
+  
+  return(FALSE)
+}
+
+isStartCodon(c("a", "t", "g"))
+isStartCodon(c("a", "g", "g"))
+```
+
+<span style="color:green"> 2.2</span>
+```{r}
+#Your code here
+# stop codons: TAA, TAG, TGA
+isStopCodon <- function(codon) {
+  stop_codons <- data.frame(c("t", "a", "a"), c("t", "a", "g"), c("t", "g", "a"))
+  
+  for (stop_codon in stop_codons) {
+    if (identical(stop_codon, codon)) {
+      return(TRUE)
+    }
+  }
+  
+  return(FALSE)
+}
+
+isStopCodon(c("t", "a", "a"))
+isStopCodon(c("t", "a", "g"))
+isStopCodon(c("t", "g", "a"))
+isStopCodon(c("t", "a", "t"))
+
+```
+
+<span style="color:green"> 2.3</span>
+
+```{r}
+###  REMEMBER to remove eval = FALSE from the code chunk header when you write your own function
+findORF <- function(sequence, minLength) {
+    ORFs <- character()
+    for (reading_index in 1:3) {
+        end_index <- (length(sequence) - (3 * minLength) + 1)
+        while (reading_index <= end_index) { ####REMIND
+            # print("the current reading index is:")
+            # print(reading_index)
+            # print("the current codon is the following:")
+            # print(sequence[reading_index:(reading_index + 2)])
+            if(isStartCodon(sequence[reading_index:(reading_index + 2)])) {
+                numCodons <- 2 #for the start codon and the first codon considered in the following iteration
+                stop_indexes <- seq(from=reading_index+3, to=length(sequence), by=3)
+                # print("the stop indexes for the particular reading_index is:")
+                # print(stop_indexes)
+                for(potential_stop_index in stop_indexes) {
+                    # print("right now the potential stop codon is:")
+                    # print(sequence[potential_stop_index:(potential_stop_index + 2)])
+                    if(isStopCodon(sequence[potential_stop_index:(potential_stop_index + 2)])) {
+                        # print("inside the loop now!")
+                        if(numCodons >= minLength) {
+                            newORF <- paste(reading_index, "to", (potential_stop_index + 2), sep=" ")
+                            # print("the ORF to be added")
+                            # print(newORF)
+                            ORFs <- append(ORFs, newORF)
+                        }
+                        reading_index <- potential_stop_index
+                        break
+                    }
+                    numCodons <- numCodons + 1
+                }
+            }
+            reading_index <- reading_index + 3
+        }
+    }
+    return(ORFs)
+}
+
+# sample_seq <- c("a", "a", "t", "g", "g", "a", "t", "g", "a", "t", "a", "t", "g", "g", "a", "a", "t", "a", "g", "t" ,"a", "a", "t", "g", "a", "t")
+# findORF(sample_seq, 2)
+```
+
+<span style="color:green"> 2.4 \span
+```{r}
+#Your code here
+get_comp_nucleotide <- function(nucleotide) {
+  if (nucleotide == "a") {
+    return("t")
+  } else if (nucleotide == "t") {
+    return("a")
+  } else if (nucleotide == "c") {
+    return("g")
+  } else if (nucleotide == "g") {
+    return("c")
+  } else {
+    stop("invalid nucleotide")
+  }
+}
+
+compStrand <- function(strand) {
+  comp_strand <- map_chr(rev(strand), get_comp_nucleotide)
+  return(comp_strand)
+}
+
+hiv_fasta <- read.fasta("/Users/vzhang00/Downloads/UChicago/2021-2022/Winter/BIOS 11141/Bio Computer Lab Assignments/BIOS11141-Computer-Assignment-3-Winter22/Sequences/HIV.fasta")
+hiv_seq <- hiv_fasta[[1]]
+hiv_ORFs <- findORF(hiv_seq, 100)
+
+hiv_rev_seq <- compStrand(hiv_seq)
+hiv_rev_ORFs <- findORF(hiv_rev_seq, 100)
+
+length(hiv_ORFs)
+length(hiv_rev_ORFs)
+```
+
+
+ <span style="color:blue"> A reason why there may be more coded genes than the number of ORFs we obtain is that we also had a minimum length requirement to the open reading frames we chose. This means that there is a possibility that there are actually more ORFs. Also, becuasse this is DNA, and we have not yet transcribed it into RNA, there is the possibility for introns and extrons that result in alternative splicing, which means more genes coded. \span
+ 
+ <span style="color:green"> 2.5 \span
+```{r}
+#Your code here
+zika_fasta <- read.fasta("/Users/vzhang00/Downloads/UChicago/2021-2022/Winter/BIOS 11141/Bio Computer Lab Assignments/BIOS11141-Computer-Assignment-3-Winter22/Sequences/zika.fasta")
+zika_seq <- zika_fasta[[1]]
+zika_ORFs <- findORF(zika_seq, 100)
+
+length(zika_ORFs)
+```
+
+
+<span style="color:green"> 2.6 \span
+
+<span style="color:blue"> The zika sequence has only one gene encoded in the forward strand, and this is because actually, the whole dna is transcribed!\span
+
+<span style="color:green"> 2.7 \span
+```{r}
+# sarscov2
+
+sarscov2_seq <- sarscov2[[1]]
+sarscov2_ORFs <- findORF(sarscov2_seq, 100)
+
+sarscov2_rev <- compStrand(sarscov2_seq)
+sarscov2_rev_ORFs <- findORF(sarscov2_rev, 100)
+
+length(sarscov2_ORFs)
+length(sarscov2_rev_ORFs)
+```
+
+<span style="color:blue"> sars covid encodes for 10 genes that ultimately produces 26 proteins. The difference we see is again possibility be because of the minimum codon length we chose might exclude one of the smaller ORFs. Also, the reason why we can code for 10 genes but make 26 differnet proteins is because of the different combinations of introns and exons, which can lead to different alternative RNA splicing that code for different proteins. \span
+
+<span style="color:green"> 3.1a \span
+```{r}
+e_coli <- read.fasta("/Users/vzhang00/Downloads/UChicago/2021-2022/Winter/BIOS 11141/Bio Computer Lab Assignments/BIOS11141-Computer-Assignment-3-Winter22/Sequences/E. coli.fasta")[[1]]
+t_petrophila <- read.fasta("/Users/vzhang00/Downloads/UChicago/2021-2022/Winter/BIOS 11141/Bio Computer Lab Assignments/BIOS11141-Computer-Assignment-3-Winter22/Sequences/Thermotoga petrophila.fasta")[[1]]
+s_solfataricus <- read.fasta("/Users/vzhang00/Downloads/UChicago/2021-2022/Winter/BIOS 11141/Bio Computer Lab Assignments/BIOS11141-Computer-Assignment-3-Winter22/Sequences/Sulfolobus solfataricus.fasta")[[1]]
+```
+
+<span style="color:green"> 3.1b \span
+```{r}
+exDNA<- c("c","t","a","t","g","g","c","g","g","g","t","a") #example short DNA sequence to work on 
+skew <- function(v) {
+  skewveca <- rep(NA, length(v))
+  #before anything, you need to establish what skewveca[1] is based on what the first base of your DNA sequence
+  if (v[1] == "g") {
+    skewveca[1] <- 1 
+  } else if (v[1] == "c") {
+    skewveca[1] <- -1
+  } else if (v[1] == "a" || v[1] == "t") {
+    skewveca[1] <- 0
+  } else {
+    stop("the given sequence of DNA is not valid (contains a unrecognized character)")
+  }
+    
+  for(a in 2:length(v)) { #from base 2 forward, add a 1 if it's a "g", -1 if it's a "c", +0 if it's "a" or "t"
+    if (v[a] == "g") {
+      skewveca[a] <- skewveca[a - 1] + 1
+    } else if (v[a] == "c") {
+      skewveca[a] <- skewveca[a - 1] - 1
+    } else if (v[a] == "a" || v[a] == "t") {
+      skewveca[a] <- skewveca[a - 1]
+    } else {
+      stop("the given sequence of DNA is not valid (contains a unrecognized character)")
+    }
+  }
+    
+  return(skewveca)
+}
+
+# exSkew <- skew(exDNA)
+# e_coli_skew <- skew(e_coli)
+```
+
+<span style="color:green"> 3.1c \span
+```{r}
+#second function to plot our skew vector
+#be sure to plot ONLY EVERY 10,000TH VALUE IN YOUR SKEW VECTOR 
+  #hint: use seq()
+skewdiagram <- function(v) {
+  plot(v[seq(from=1, to=length(v), by=10000)],
+       xlab="nucleotide index in ten-thousands",
+       ylab="G - C Skew value",
+       main="G Minus C content Across Nucleotide Sequence")
+  return()
+}
+
+# skewdiagram(exSkew)
+# skewdiagram(e_coli_skew)
+```
+
+<span style="color:green"> 3.1d \span
+```{r}
+min_skew <- function(v) {
+  skew_v <- skew(v)
+  
+  ret <- 1
+  for (i in seq_along(skew_v)) {
+    if (skew_v[i] < skew_v[ret]) {
+      ret <- i
+    }
+  }
+  
+  return(ret)
+}
+
+# min_skew(e_coli)
+# length(e_coli)
+```
+
+<span style="color:green"> 3.1d \span
+```{r}
+e_coli_skew <- skew(e_coli)
+min_skew(e_coli)
+skewdiagram(e_coli_skew)
+```
+<span style="color:green"> 3.1e \span
+<span style="color:blue"> The expected oriC will likely be between 3925000 and 3926000. The reason why is because we can deduce this is because our min_skew function tells us where the lowest G-C value is (392597), which is around where the oriC replication place is, and since we have to consider the possibility of random error and things, I found the interval that is within 1000 nucleotides of that lowest value, which will be 3925000 to 3926000.\span
+
+<span style="color:green"> 3.2 \span
+```{r}
+t_petrophila_skew <- skew(t_petrophila)
+min_skew(t_petrophila)
+skewdiagram(t_petrophila_skew)
+```
+<span style="color:blue"> I noticed that this is different from the e_coli one in the the G-C content actualyl fluctuates a lot more. This nucleotide sequence is also a lot smaller than the e_coli, and the lowest G-C content is located around 787000 to 788000. \span
+
+<span style="color:green"> 3.3 \span
+```{r}
+s_solfataricus_skew <- skew(s_solfataricus)
+skewdiagram(s_solfataricus_skew)
+```
+<span style="color:blue"> In this one with  Sulfolobus solfataricus, we notice that there are different valleys, and so in addition to global minimum, we can consider these local minimas and think about why those occur. This might indicate that there might actually be three different origins of replication. This is because in prokaryotic cells, cells can afford and should have more mutation because they undergo asexual reproduction. Some experimental evidence that might support this finding is in this paper, which discusses how Haloarcula hispanica has diverse control mechanisms that allows for multiple orgins or replication: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3936714/ \span

@@ -1,0 +1,211 @@
+---------------------------------------------------------
+############# Python 2.7 or earlier
+
+#!/usr/bin/env python	
+for Letter in range(65,73): # step character 65 to 72	
+   Labels=''	
+   for Number in range(1,13):	
+     Labels += chr(Letter) + str(Number) + ' ' 	
+   print Labels   # print the whole line	
+
+---------------------------------------------------------
+############# Python 3
+
+#!/usr/bin/env python	
+for Letter in range(65,73): # step character 65 to 72	
+   Labels=''	
+   for Number in range(1,13):	
+      Labels += chr(Letter) + str(Number) + ' ' 	
+   print(Labels)     # print the whole line	
+
+---------------------------------------------------------
+############# Perl 
+
+#!/usr/bin/env perl	
+for ($Letter = 65; $Letter < 73; $Letter++) {  # step character 65 to 72	
+   $Labels = "";	
+   for ($Number = 1; $Number < 13; $Number++) {	
+      $Labels .= chr($Letter) . $Number . " " ;	
+   }	
+   print $Labels . "\n "  # print the whole line	
+}	
+
+---------------------------------------------------------
+############# bash shell
+
+#! /bin/bash	
+for LET in {A..H}	
+do 	
+   LABEL=""	
+   for NUM in {1..12}	
+   do	
+      LABEL="$LABEL $LET$NUM"	# must have no spaces
+   done	
+   echo $LABEL  # print the whole line	
+done	
+
+---------------------------------------------------------
+/////////////  C
+
+#include <stdio.h>	
+char letter;	
+int number;	
+	
+int main(void){	
+   for (letter = 65; letter <= 72; letter++) {	
+      for (number = 1; number <= 12; number++) {	
+         printf("%c%d ",letter,number);	
+      }	
+      printf("\n");  // print the line break	
+   }	
+   return 0;	
+}
+
+/****  C is a compiled, not an “interpreted” language, so in order to run this you will have to save it as rosetta.c, then compile it with the terminal comand: 
+gcc rosetta.c	
+This assumes that you have a C compiler installed. The executable produced by this command will be called a.out, and if its directory is not in your path, it can be run from its directory by typing:
+./a.out
+***/
+
+---------------------------------------------------------
+/////////////  C++
+
+#include <iostream>	
+using namespace std;	
+	
+char letter;	
+int number;	
+	
+int main(){	
+   for (letter = 65; letter <= 72; letter++) {	
+      for (number = 1; number <= 12; number++) {	
+         cout << letter << number <<" ";	
+      }	
+      cout << endl; // print the end of line char	
+   }	
+}	
+
+/****  Note that to run this you will have to save it as rosetta.cpp, then compile it with the terminal comand: 
+g++ rosetta.cpp"#994A81"	
+As with C, this assumes that you have the C++ compiler called g++ installed. Upon success, the executable will be called a.out, and if the directory where a.out resides is not in your path, it can be run from its directory by typing:
+./a.out	
+******* /
+---------------------------------------------------------
+///////////////  Java
+// to run, save as rosetta.java
+// compile with: javac rosetta.java
+// execute with: java Rosetta  // capitals because that matches the class name
+
+class Rosetta {	
+   public static void main(String[] args){	
+     for(int letter = 65; letter < 73; letter++){     //Step through the ASCII values	
+       for(int number = 1; number < 13; number++){ 	
+         System.out.print((char)letter + (number + " ")); //print w/o LineFeed	
+       }	
+       System.out.println();	
+     }	
+   }	
+ }
+
+---------------------------------------------------------
+/////////////  JavaScript
+<!-- JavaScript is the language used to make web pages dynamic. It is interpreted by your web browser program, so save this script in a file with the extension .html, and drag it into a browser window to see the output: -->
+
+<html> <body> 	
+<code>	
+<script type="text/javascript"> 	
+var letter, number; 	
+document.write("<br>");	
+   for (letter = 65; letter <= 72; letter++) {	
+      for (number = 1; number <= 12; number++) {	
+         document.write(String.fromCharCode(letter) + number + " ");	
+      }	
+      document.write("<br>"); // print an html line break	
+   }	
+</script> 	
+</code>	
+</body> </html>	
+
+---------------------------------------------------------
+/////////////  PHP
+
+<html> <body>	
+Table of values<br><br>	
+<?php 	
+for($Letter = 65; $Letter <= 72; $Letter++) {	
+   $Label='';	
+   for($Number = 1; $Number <= 12; $Number++) {	
+      $Label .= chr($Letter) . strval($Number) ." ";	
+   }	
+   echo $Label . "<br>"; // print an html line break	
+}	
+?>	
+</body> </html>
+
+---------------------------------------------------------
+###########   Ruby
+
+#! /usr/bin/env ruby
+
+# note, in ruby, uppercase variable names mean that they are constant
+# here we could either use lowercase, or start with an underscore
+
+for letter in 65..72 # step character 65 to 72
+  label = ''
+  for number in 1..12
+    label += letter.chr + "#{number}" + " "
+  end  # end for number
+  puts(label) # print the whole line
+end  # end for letter
+
+
+
+
+---------------------------------------------------------
+%%%%%%%%%%%%%%%  MATLAB
+	
+for Letter = 65:72   % step through character 65 to 72	
+   Labels = "";	
+   for Number  = 1:13	
+     Labels = [Labels char(Letter) num2str(Number) ' ' ];	
+   end % for Number	
+   disp(Labels)  % print the whole line	
+end % for Letter	
+
+---------------------------------------------------------
+###########   R
+
+#! /usr/bin/env Rscript	
+
+for (Letter in 65:72) {   # step through character 65 to 72	
+  Lines = ""	
+  for (Number in 1:12) {	
+    cat(intToUtf8(Letter),Number,' ',sep="")	
+  } # end for Number	
+  cat("\n")  # print the whole line	
+} # end for Letter	
+
+
+---------------------------------------------------------
+/////////////  Arduino
+
+// This program is written to be uploaded to an Arduino device, which will then generate the desired output and sent it out along the serial port. Connect to the Arduino, monitor the serial connection, and restart the device to see the output:
+
+char Letter;	
+int Number;	
+	
+void setup(){	
+   Serial.begin(19200); 	
+   for (Letter = 65; Letter<= 72; Letter++) {	
+      for (Number = 1; Number <= 12; Number++) {	
+         Serial.print(byte(Letter));	
+         Serial.print(Number);	
+         Serial.print(" ");	
+      }	
+      Serial.println(); // print a line break	
+   }	
+}
+void loop(){} // a loop section is required
+
+
+

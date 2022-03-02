@@ -1,0 +1,243 @@
+
+##Lab1 Answers File
+--
+Please write your answers into the space below the questions. Knit this file when you are done to check that all code runs. Remember to rename the file to contain *your actual* Last and First name.
+--
+
+<span style="color:green"> 3.1</span>
+```{r}
+pi^5
+```
+
+
+<span style="color:green"> 3.2.</span>
+```{r}
+4.0e+6 * pi
+```
+
+
+<span style="color:green"> 4.1</span>
+<span style="color:blue"> a. R interprets the logical classes as integers instead, because in binary, it is traditional that 0 means false and 1 means true. As a result, since you can't add two logical classes, R interprets them as integer classes and adds the falue of TRUE and TRUE together as 1 + 1. </span>
+
+<span style="color:blue"> b. It's not uncommon that for example, if a number is 0, we would want to execute something, but if it is anything but 0, we would want to execute something else. Say we have an integer called num. We can utilize the innate intersection of integers and logical classes to simplify our conditions to "if !num {}", rather than "if num == 0 {}", instead. Furthermore, the ability for logical statements to be interpreted as binaries allows for some elegant ways of working around integers </span>
+
+
+<span style="color:green"> 4.2</span>
+<span style="color:blue"> a. y is actually just holding the value, not the expression of y = x*2 </span>
+<span style="color:blue"> b. if your variable stores an expression, then the variable is *dependent* on the content inside the expression; if the expression some how changes, then the variable that holds that expression changes too. However, if you store a constant (i.e storing a value), then the varialbe cannot change unless you reassign it to a new value or new expression. </span>
+
+
+<span style="color:green"> 4.3</span>
+<span style="color:blue"> c() takes in objects (that do not necessarily have to be the same class) and concatnates them into a single vector. It can take special parameters such as recursive = TRUE, that would add the values of the objects as it adds them to the vector, or use.names == TRUE meaning that the names should ve preserved. Note that because it creates what's a vector, order matters. </span>
+
+
+<span style="color:green"> 4.4</span>
+```{r}
+myVec = seq(10, 100, 10)
+#a.
+newVec <- myVec - 9
+```
+<span style="color:blue"> b. although it seems like you are subtracting a vector with a single integer, R is smart enough to retake the 9 and assume that you actually want to subtract 9 to each of the objects in the vector in myVec. In practice, myVec - 9 is basically subtracting myVec with a vector of the same size filled with 9's. </span>
+
+<span style="color:green"> 4.5</span>
+```{r}
+mean(myVec)
+```
+
+<span style="color:green"> 4.6</span>
+```{r}
+myVec[-3] # returns myVec, except the 3rd entry
+myVec[3:5] # returns myVec, but only the 3rd all the way to 5th entries
+myVec[c(1,3,8)] # returns myVec, but only the 1st, 8th, and 5th entries
+2*myVec # returns myVec with each object doubled in value
+myVec[1] <- 7.5 # replace the 1st entry of myVec with a 7.5
+```
+
+<span style="color:green"> 4.7 </span>
+```{r}
+heartRate <- seq(60, 100, by = 5)
+averageEjection <- 67
+ejectionVolumes <- heartRate * averageEjection * 30
+```
+
+
+<span style="color:green"> 5.1</span>
+```{r}
+# != is a comparison operator that returns TRUE when two things are not equal and FALSE otherwise
+# >= is a comparsion operator that retunrs TRUE when the LHS is greater than or equal to the RHS, and FALSE otherwise
+# <= is a comparison operator that returns TRUE when the LHS is less than or equal to the RHS, and FALSE otherwise
+# == is a comparison operator that returns TRUE when two things are equal and FALSE otherwise
+# < is a comparison operator that returns TRUE when the LHS is less than the RHS, and FALSE otherwise
+# > is a comparsion operator that retunrs TRUE when the LHS is greater than the RHS, and FALSE otherwise
+```
+
+
+
+<span style="color:green"> 5.2</span>
+<span style="color:blue"> The || logical operator represents "OR" </span>
+
+<span style="color:green"> 5.3</span>
+<span style="color:blue"> multiplesOfFive stores the objecst that are divisible by five, and notDivisibleByFive stores whether the object is divisible by five for each of the multiples of five. Then when you call multiplesOfFive[notDivisibleByTen], you only return the vector of multiple of fives such that the objects in it are not divisible by ten </span>
+
+<span style="color:green"> 6.1</span>
+```{r}
+carSpeed <- 67
+speedLimit <- 60
+
+if(carSpeed > speedLimit) {  # if the carSpeed is greater than the speed limit, do what is inside the upcoming chuck
+    print("Give ticket") # this is the upcoming chunck (inside the {}), so print "Give Ticket"
+} else {                # otherwise, (meaning if carSpeed is NOT greater than speed limit), do what is in this chunk:
+    print("Do nothing") # this is the next chuck after else {}, so print "do nothing"
+} 
+```
+<span style="color:blue"> a. the explanation is embedded inside the code chuck ^ </span>
+<span style="color:blue"> b. after changing the carSpeed from 65 to 67, the control flow in the code segment above does not change becasue the first condition (carSpeed > speedLimit) remains the same, so yet again it only execute the first block, and skips the else {} block </span>
+
+<span style="color:green"> 6.2</span>
+```{r}
+if(0) {
+    print("a")
+} else {
+    print("b")
+}
+```
+<span style="color:blue"> This happens because as mentioned before TRUE is the logical equivalent of the binary 1, and FALSE is the logical equivalent of the binary 0. If (0) in logical sense will be equivalent to if FALSE, and so it will print b (what is in the else statement) </span>
+
+
+<span style="color:green"> 6.3</span>
+```{r}
+hasHomework <- TRUE
+isTired <- TRUE
+
+if (isTired) {
+  print("Vincent is Tired")
+  
+  if (hasHomework) {
+    print("cannot go to sleep yet")
+  } else {
+    print("go to sleep!")
+  }
+}
+```
+
+<span style="color:green"> 6.4</span>
+```{r}
+
+bodyTemp <- 37
+if ((bodyTemp > 40) || (bodyTemp < 35)) {
+  print("seek medical attention")
+} else {
+  print("do nothing")
+}
+```
+
+<span style="color:green"> 7.1</span>
+<span style="color:blue"> a. i is defined and redefined in each iteration of the for loop, it is defined based on which index of 1:10 it currently is at. 
+b. it is not an global varialbe because it's not stored in the global environment
+c. for each of the numbers in the range of 1 to 10, print out the double of those numbers 
+d. assinging a value to i outside of the for loop does not effect its calculation inside the loop </span>
+
+
+<span style="color:green"> 7.2</span>
+<span style="color:blue"> Your answer here.</span>
+```{r}
+# Remember that 1 means TRUE and 0 means FALSe
+# if something mod 2 is 1, it is ODD, if something mod 2 is 0, it is EVEN
+
+for (i in 1:10) {
+  if (i == 5) {
+    print(i)
+  }
+  
+  if (!(i %% 2)) {
+    print(i)
+  }
+}
+```
+
+
+<span style="color:green"> 7.3</span>
+```{r}
+for (letter in letters) {
+  print(toupper(letter))
+}
+```
+
+
+<span style="color:green"> 7.4</span>
+<span style="color:blue"> the code below would not run because when you print (x + x), you do not actually update x in the global enviornment, its simply calculated for x + x to be used in print, but it does not change the value of x, so x will always be <= 5. </span>
+
+<span style="color:green"> 7.5</span>
+<span style="color:blue"> Your answer here.</span>
+```{r}
+x <- 2  
+while(x <= 5){  
+  x <- x + x
+  print(x)  
+} 
+```
+
+<span style="color:green"> 8.1 </span>
+```{r}
+findSquare <- function(n) {
+  return(n^2)
+}
+
+squared <- findSquare(273)
+```
+
+<span style="color:green"> 8.2 </span>
+<span style="color:blue"> Provided inputs are taken in to be the arguments of the function in the order as when you first define it to be. For instance, in the given example, we defined the function to take parameters x y z in that order, and so once we call the function with some inputs, those inputs will be taken in the same order as when you first defined it UNLESS you specify the names of each, as in the third example. If so, then that assignment takes priority. </span>
+
+
+<span style="color:green"> 8.3 </span>
+```{r}
+calcMean <- function(nums) {
+  len <- length(nums)
+  sum <- sum(nums)
+  
+  return(sum / len)
+}
+
+example_num = c(2:30)
+calcMean(example_num)
+mean(example_num)
+```
+
+<span style="color:green"> 8.4 </span>
+```{r}
+concentrations <- numeric(10)
+for (i in seq_along(concentrations)) {
+  concentrations[i] <- 10^(-i)
+}
+
+H_from_pH <- function(pH) {
+  concentration_H <- 10^(-pH)
+  
+  return(concentration_H)
+}
+
+OH_from_pH <- function(pH) {
+  pOH <- 14 - pH
+  concentration_OH <- 10^(-pOH)
+  
+  return(concentration_OH)
+}
+
+```
+
+<span style="color:green"> 8.5 </span>
+```{r}
+calculateSTD <- function(nums) {
+  n = length(nums)
+  mean = mean(nums)
+  summation = sum((nums - mean)^2)
+  
+  return(sqrt(summation / (n - 1)))
+}
+
+exampleVec <- seq(1, 200, 0.25)
+calculateSTD(exampleVec)
+sd(exampleVec)
+```
+

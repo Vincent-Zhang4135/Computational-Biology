@@ -1,0 +1,317 @@
+
+## Computer Assignment 5 Answers File
+---
+Please write your answers into the space below the questions. Knit this file when you are done to check that all code runs. Remember to rename the file to contain *your actual* Last and First name.
+---
+
+```{r setup}
+library(seqinr)
+library(tidyverse)
+library(ggplot2)
+source("pairAlign.R")
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("Biostrings")
+suppressMessages(library(Biostrings)) #silently loads Biostrings functions
+```
+
+<span style="color:green"> 1.1 \span
+```{r}
+lut <- matrix(-1, 4, 4)
+diag(lut) <- 3
+dimnames(lut) <- list(c("A", "C", "G", "T"), c("A", "C", "G", "T"))
+
+smith_algorithm<-function(seq1,seq2){
+  scoreMat <- scoreMat <- lut[strsplit(seq2, "")[[1]], strsplit(seq1, "")[[1]]]
+  
+  #convert seq1 and seq2 strings to vector
+  seq1 <- strsplit(seq1, "")[[1]]
+  seq2 <- strsplit(seq2, "")[[1]]
+  
+  amatrix<- matrix(0, ncol=length(seq1)+1, nrow=length(seq2)+1) #initialize alignment matrix
+  rownames(amatrix) <-c("", seq2) #set row names
+  colnames(amatrix) <-c("", seq1) #set column names
+  
+  gap <- -2
+  
+  # set values of the first row and column:
+  for (i in 1:nrow(amatrix)) {
+    amatrix[i,1] <- gap * (i - 1)
+  }
+  
+  for (j in 1:ncol(amatrix)) {
+    amatrix[1,j] <- gap * (j - 1)
+  }
+  
+  # use max[(D + score(), U + gap, L + gap)] for the rest of the columns to determine the best score for each entry\
+  for (i in 2:nrow(amatrix)) {
+    for (j in 2:ncol(amatrix)) {
+      U <- amatrix[i - 1, j] + gap
+      L <- amatrix[i, j - 1] + gap
+      D <- amatrix[i - 1, j - 1] + scoreMat[i - 1, j - 1]
+      amatrix[i, j] <- max(U, L, D, 0)
+    }
+  }
+  
+  return(amatrix)
+}
+```
+
+
+<span style="color:green"> 1.2 \span
+```{r}
+seq1 <- "CCGATATGGCTTATGATCCA"
+seq2 <- "GATTACAGGGCTTAAGCT"
+
+smith_algorithm(seq1, seq2)
+```
+
+
+
+<span style="color:green"> 1.3 \span
+```{r}
+sub <- nucleotideSubstitutionMatrix(match = 3, mismatch = -1, baseOnly = TRUE)
+pairAlign(seq1, seq2, substitutionMatrix = sub, gapExtension = -2, type = "local")
+```
+
+<span style="color:blue"> the best local alignment score is 26, which what we see in the local alignment matrix I created in 1.2 using  Smith-Waterman's algorithm.\span
+
+
+ <span style="color:green"> 2.1 \span
+
+```{r}
+#modified version of generateSeqsWithMultinomialModel() from https://a-little-book-of-r-for-bioinformatics.readthedocs.io/en/latest/src/chapter4.html
+
+generateSeqs <- function(inputsequence, X){
+  #split inputted string into vector of individual characters
+  inputsequencevector <- strsplit(inputsequence,"")[[1]]
+  mylength <- length(inputsequencevector)
+  mytable <- table(inputsequencevector)
+  letters <- rownames(mytable) 
+  probabilities <- mytable/mylength #store the probabilities of letters
+  
+  #sample total number of characters needed to generate X random sequences of length myLength
+  seqset <- sample(letters, mylength*X, rep=TRUE, prob=probabilities) 
+  
+  #apply paste0() to collapse vector of characters into a vector of character strings of the original length
+  seqs <- vapply(seq(1, mylength*X, mylength), function(i) paste0(seqset[i:(i+(mylength-1))], collapse = ''), inputsequence)
+  
+  return(seqs)
+}
+```
+
+```{r}
+seqs <- generateSeqs("ARDCRKRHBD", 1500)
+scores <- rep(NA, 1500)
+
+for (i in 1:1500) {
+  score <- pairAlign("QGHDPKACRKZNCL", seqs[i], substitutionMatrix = "BLOSUM62", 
+                             gapOpening = -8, gapExtension = -2, type = "global", scoreOnly = TRUE)
+  
+  scores[i] <- score
+}
+```
+
+<span style="color:green"> 2.2 \span
+```{r}
+# Creating the histogram
+ggplot(dat = data.frame(scores), aes(scores)) +
+  geom_histogram(col="white", bins = 25) +
+  theme_bw()
+
+# Calculating Probablity of a score greater than or equal to -4
+greater_than_4 <- scores[scores >= -4]
+(p <- length(greater_than_4) / length(scores))
+
+```
+
+<span style="color:blue"> the probability of the score being greater than or equal to -4 is 0.17 \span
+
+```{r}
+# INPUT ARGUMENTS
+# patterns : list of char vectors
+#            each vector patterns[[i]] contains the version of the CENTER sequence that arises from the pairwise alignment between the center sequence and sequence[i]
+# subjects : list of char vectors
+#            each vector subjects[[i]] contains the alignment of sequence[i] after a pairwise alignment with the center sequence
+# center   : integer
+#            index of the sequence in the original sequence list that is the center. 
+buildMSA <- function(patterns, subjects, center) {
+    MSA <- rbind(patterns[[1]], subjects[[1]])
+    for(i in 2:length(patterns)) {
+        j = 1 #index in new row
+        k = 1 #index in alignment of center sequence to sequence i
+        m = 1 #column index of MSA
+        maxLength = ncol(MSA) + length(patterns[[i]])
+        newRow = character(maxLength)
+        while(k <= length(patterns[[i]]) && m <= ncol(MSA)) {
+            if(patterns[[i]][k] == MSA[1, m]) {
+                newRow[j] <- subjects[[i]][k]
+                j <- j + 1
+                k <- k + 1
+                m <- m + 1
+            } else if(MSA[1, m] == "-") {
+                newRow[j] <- "-"
+                j <- j + 1
+                m <- m + 1
+            } else if(patterns[[i]][k] == "-") {
+                if(m == 1) {
+                    MSA <- cbind(rep("-", nrow(MSA)), MSA)
+                } else {
+                    MSA <- cbind(MSA[, 1:(m-1)], rep("-", nrow(MSA)), MSA[, m:ncol(MSA)])
+                }
+                newRow[j] <- subjects[[i]][k]
+                m <- m + 1
+                j <- j + 1
+                k <- k + 1
+            }
+        }
+        while(k <= length(patterns[[i]])) {
+            MSA <- cbind(MSA, rep("-", nrow(MSA)))
+            newRow[j] <- subjects[[i]][k]
+            k <- k + 1
+            j <- j + 1
+        }
+        while(m <= ncol(MSA)) {
+            newRow[j] <- "-"
+            m <- m + 1
+            j <- j + 1
+        }
+        newRow <- newRow[1:(m - 1)]
+        MSA <- rbind(MSA, newRow)
+    }
+    rownames(MSA) <- c("    Center:", paste0("Sequence ", 1:(nrow(MSA)), ":")[-center])
+    colnames(MSA) <- 1:ncol(MSA)
+    return(MSA)
+}
+```
+
+```{r}
+## EXAMPLE:
+peptides <- c("ARDCRKRHBD", "QGHDPKACRKZNCL", "ACGDCRKRHBD")
+n <- length(peptides)
+align1 <- matrix("", n, n)
+align2 <- align1
+
+## Generate alignments
+for(i in 1:(n-1)) {
+    for(j in (i+1):n) {
+        alignment <- pairAlign(peptides[i], peptides[j], "BLOSUM62", -8, -2)
+        align1[j, i] <- alignment[[1]]
+        align2[i, j] <- alignment[[1]]
+        align2[j, i] <- alignment[[2]]
+        align1[i, j] <- alignment[[2]]
+    }
+}
+
+distances <- sapply(mapply(`!=`, strsplit(align1, ""), strsplit(align2, "")), sum)
+distanceMatrix <- matrix(distances, n, n)
+dimnames(distanceMatrix) = list(peptides, peptides)
+
+possibleCenters <- which(colSums(distanceMatrix) == min(colSums(distanceMatrix)))
+center <- possibleCenters[which.max(nchar(peptides[possibleCenters]))]
+
+ps <- strsplit(align1[,center][-center], "")
+ss <- strsplit(align2[,center][-center], "")
+ps
+ss
+buildMSA(ps, ss, center)
+```
+
+
+
+<span style="color:green"> 3.1a \span
+<span style="color:blue">  The buildMSA() function takes in three arguments, pattern, subjects, center. The center is just simply which of the sequences is the center of our alignment. For the pattern and subjects, remember that we are comparing each pairwise sequence alignment, and calculating the distance between each alignment pairs and finding the sequence that would minimuzie the sum of these distances which is the center. Then, the pattern is storing the alignment of the center sequence for each of these pairwise alignment, and subjects storing each of the subject of the pairwise alignments against the center sequence. buildMSA() takes these patterns and subjects, and creates the multiple sequence alignment that aligns all these subjects to the center sequence, using the pattersn found for each center sequence pair. \span
+
+<span style="color:green"> 3.1b \span
+<span style="color:blue"> if a gap occurs in the alignmnet between the center sequence and sequence i that does not occur in the multiple seqeucne ialignment up to this point, then a new row is built with the "-" filled up to the point at which the current sequence is up to, and with the front being the first col of the previous rows, and the end being the last col of the rows. \span
+
+<span style="color:green"> 3.2 \span
+<span style="color:blue"> The nested for loop iterates over the vecitor peptides by comparing the ith and jth sequence in the peptide, such that i and j and not the same (so not including diagonal elements in matrix), and such that the same i and j are not repeated twice. Then, this is pairAligned, and the alignment sequences are stored into two alignment matrices representing the sequence alignment and its counterpart/ \span
+
+<span style="color:green"> 3.3 \span
+```{r}
+sequences <- c("MATCHQQQ", "MARCH", "MATCH", "QQQMATCH", "MATQQQCH")
+n <- length(sequences)
+pattern <- matrix("", n, n)
+subject <- pattern
+
+## Generate alignments
+for (i in 1:(n-1)) {
+    for (j in (i+1):n) {
+        alignment <- pairAlign(sequences[i], sequences[j], substitutionMatrix="BLOSUM62", gapOpening=-10, gapExtension=-2)
+        pattern[j, i] <- alignment[[1]]
+        subject[i, j] <- alignment[[1]]
+        subject[j, i] <- alignment[[2]]
+        pattern[i, j] <- alignment[[2]]
+    }
+}
+
+pattern
+```
+
+<span style="color:green"> 3.4 \span
+
+```{r}
+distances <- sapply(mapply(`!=`, strsplit(pattern, ""), strsplit(subject, "")), sum)
+distanceMatrix <- matrix(distances, n, n)
+dimnames(distanceMatrix) = list(sequences, sequences)
+distanceMatrix
+```
+
+<span style="color:green"> 3.5 \span
+<span style="color:blue"> finding the column sums is useful because it sums up all the distances for the given pattern sequence, and since then center sequence is that which thew sum of the distances between it and all other subject sequences is the least, we will just need to find the sequence whose sum of distances (which is the column sum) is the least, and has the most number of nucleotide (greatesting number of characters)\spam
+
+<span style="color:green"> 3.6 \span
+```{r}
+possibleCenters <- which(colSums(distanceMatrix) == min(colSums(distanceMatrix)))
+center <- possibleCenters[which.max(nchar(sequences[possibleCenters]))]
+```
+
+<span style="color:blue"> I took similar steps to the example we were provided. I collected the total sums (column sums) for each possible center sequence, and stored all possible center sequences in a variable called possibleCenters, and then in the case that there are multiple potential center sequences due to have the same distance sum, we choose the one whith the greatest number of characters as our center sequence.\span
+
+
+<span style="color:green"> 3.7 \span
+```{r}
+patterns <- strsplit(pattern[,center][-center], "")
+subjects <- strsplit(subject[,center][-center], "")
+patterns 
+subjects
+buildMSA(patterns, subjects, center)
+```
+
+<span style="color:green"> 3.8 \span
+```{r}
+centerStar <- function(sequences, substitutionMatrix, gapOpening, gapExtension) {
+  n <- length(sequences)
+  pattern <- matrix("", n, n)
+  subject <- pattern
+
+  ## Generate alignments
+  for (i in 1:(n-1)) {
+      for (j in (i+1):n) {
+          alignment <- pairAlign(sequences[i], sequences[j], substitutionMatrix=substitutionMatrix, gapOpening=gapOpening, gapExtension=gapExtension)
+          pattern[j, i] <- alignment[[1]]
+          subject[i, j] <- alignment[[1]]
+          subject[j, i] <- alignment[[2]]
+          pattern[i, j] <- alignment[[2]]
+      }
+  }
+
+  distances <- sapply(mapply(`!=`, strsplit(pattern, ""), strsplit(subject, "")), sum)
+  distanceMatrix <- matrix(distances, n, n)
+  dimnames(distanceMatrix) = list(sequences, sequences)
+
+  possibleCenters <- which(colSums(distanceMatrix) == min(colSums(distanceMatrix)))
+  center <- possibleCenters[which.max(nchar(sequences[possibleCenters]))]
+
+  patterns <- strsplit(pattern[,center][-center], "")
+  subjects <- strsplit(subject[,center][-center], "")
+  
+  return(buildMSA(patterns, subjects, center))
+}
+
+globins <- unlist(seqinr::read.fasta("globins.fasta", seqtype = "AA", as.string = T))
+
+centerStar(globins, "BLOSUM62", -10, -3)
+```
+

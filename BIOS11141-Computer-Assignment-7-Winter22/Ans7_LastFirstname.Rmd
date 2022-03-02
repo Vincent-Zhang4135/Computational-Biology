@@ -1,0 +1,167 @@
+
+## Computer Assignment 6 Answers File
+---
+Submit HTML file and your Rmd.
+
+Please write your answers into the space below the questions. Knit this file when you are done to check that all code runs. Remember to rename the file to contain *your actual* Last and First name.
+---
+
+<span style="color:green"> 1.1 
+<span style="color:blue"> /Users/vzhang00 \span
+
+
+<span style="color:green"> 1.2 
+<span style="color:blue"> If our present working directory was the Users diredtor, then the relative path to HideFiles.sh is ./smithmj/scripts/funstuff/HideFiles.sh. If the cwd was the funstuff folder, than the relative path to HideFiles.sh would be ./HideFiles.sh \span
+
+
+<span style="color:green"> 1.3 
+<span style="color:blue"> The two periods .. references the directory one level above the current directory; it is the directory for which our cwd is a subdirectory of.\span
+
+<span style="color:green"> 1.4 
+<span style="color:blue"> cd .. ; cd .. \span
+
+<span style="color:green"> 1.5 
+<span style="color:green"> `ls -l` (that is the letter ‘l’, not the number 1)  \span  
+
+<span style="color:blue"> this gives us more detail abt each item in our directory and prints them out line by line, such as the readability and writability for users, groups, and owners, and the last time it was edited. \span
+
+<span style="color:green"> `ls -lS` \span   
+
+<span style="color:blue"> does the same as ls, but also sort the files by their size \span
+
+<span style="color:green"> `ls -lt`  \span 
+
+<span style="color:blue"> does the same as ls, but also sorts the files by the time they were edited. \span
+
+<span style="color:green"> `ls -ltr`  \span
+
+<span style="color:blue"> does the same as ls-lt, but adding the r parameter makes it in reverse order.  \span
+
+<span style="color:green"> `ls -g`  \span  
+
+<span style="color:blue"> this is the same as ls -l, but excludes the user \span
+
+
+<span style="color:green"> 1.6 
+<span style="color:blue"> if we run ls ./D*, you we will see that we list the subdirectory of all folders that start with a D \span
+
+
+<span style="color:green"> 1.7
+<span style="color:blue"> The subdirectories that are in the newly created pcfb folder are: examples, scripts, and sandbox. The smallest size file in the examples subdirectory is Latlon.txt \span
+
+
+<span style="color:green"> 1.8 
+<span style="color:blue"> "cp ./examples/structure_1s36.pdb ./", "mv structure_1s36.pdb ./sandbox" \span
+
+
+<span style="color:green"> 1.9 
+<span style="color:blue"> luminisent protein, there are 195 amino acids, 1493 protein atoms in this sructure. \span
+
+
+<span style="color:green"> 1.10 
+<span style="color:blue"> the permissions currently present in the myScript.sh file is  \span
+
+
+<span style="color:green"> 2.1
+<span style="color:blue"> /home/vzhang00/CompAns7 \span
+
+
+<span style="color:green"> 2.2 
+<span style="color:blue"> "scp ./* vzhang00@midway2.rcc.uchicago.edu:~/CompAns7" \span
+
+
+<span style="color:green"> 2.3 
+<span style="color:blue"> the two write.csv() commands in the forward and backward strands writes these sequences to two csv files. The function used to allow us to generate these outputs is the findORFs() function. (the compStrand() is also used to find the reverse sequence for us to apply findORFs() to).\span
+
+
+<span style="color:green"> 2.4
+<span style="color:blue"> A node has CPU allocated for it (computational power in essencee). We dedicate a login node to login users becuase it does not require as much computation, and also logins are much more frequent but short lived. However, actual jobs need more CPU, and thus it is efficient to reserve the power needed for these type of jobs only when it is needed, rather than using these powerful compute nodes for simple but abudant logins. \span
+
+
+<span style="color:green"> 2.5
+<span style="color:blue"> I chose findORFs_homo_sapiens_Chr1, because that is the exactly what the bash does, it runs the CompAsn6source.R file which finds the ORFs of the first chromosome of the homo_sapiens genome in the forawrd and reverse strands. \span
+
+
+<span style="color:green"> 2.6 
+<span style="color:blue"> Rscript is the bash command that is run \span
+
+
+<span style="color:green"> 3.1 
+<span style="color:green"> `cat ../examples/*.seq` \span  
+<span style="color:blue"> this is concatenating the lines from all files in examples that end with .seq, and outputting into the default stdout. \span
+
+<span style="color:green"> `cat ../examples/*.seq > ./chaetognath.fasta` \span  
+<span style="color:blue"> this is concatenating the lines from all files in examples that end with .seq, but since we have ">", we are redirecting the stdout into a file called chaetognath.fasta.\span
+
+<span style="color:green"> 3.2
+<span style="color:blue"> grep "Toolik Lake" ../examples/shaver_etal.csv > ./toolik.csv \span
+
+
+<span style="color:green"> 3.3 
+<span style="color:blue"> grep "Aug" ../examples/shaver_etal.csv | grep "Toolik Lake" > ./toolik_aug.csv \span
+
+<span style="color:green"> 3.4 
+<span style="color:blue"> 
+UCID="vzhang00"
+ssh $UCID@midway2.rcc.uchicago.edu  
+\span
+
+<span style="color:green"> 3.5 
+<span style="color:blue">  mkdir Images2 \span
+
+<span style="color:green"> 3.6 
+<span style="color:blue">
+for img in /home/vzhang00/CompAns7/Images/img*.png</br>
+do cp $img /home/vzhang00/CompAns7/Images2</br>
+done
+</span>
+
+<span style="color:green">4.1. 
+<span style="color:blue"> scp 'vzhang00@midway2.rcc.uchicago.edu:~/CompAns7/Homo_sapiens_Chr1_ORFs*' ./ </span>
+
+
+<span style="color:green">4.2. 
+```{r}
+#Your code here
+chr1_forward <- read.csv("./Homo_sapiens_Chr1_ORFs_forward.csv")
+chr1_reverse <- read.csv("./Homo_sapiens_Chr1_ORFs_reverse.csv")
+
+head(chr1_forward)
+head(chr1_reverse)
+```
+
+
+<span style="color:green">4.3.
+```{r}
+nrow(subset(chr1_forward, Length >= 450))
+nrow(subset(chr1_reverse, Length >= 450))
+```
+<span style="color:blue"> There are 8681 ORFs in the forward direction of at least 450 bases, and 3203 ORFs in the reverse direction of at least 450 bases in Chromosome 1 of the human genome. </span>
+
+
+<span style="color:green">4.4. 
+<span style="color:blue"> The ORF count and the gene count may be different because not every ORF is capable of produce a gene. More than one protein could be encoded by any given gene because of things such as alternative splicing, which allows different combinatiosn of ordering of introns and extrons to lead to different proteins being produced from the same DNA section. </span>
+
+
+<span style="color:green">4.5. 
+<span style="color:blue"> There are far more ORFS than the number of genes we know the chromosome 1 to encode for. One possibility for this is that the some of the ORFs actually code for the same gene. Another explaination for this is remember that an ORF must start from one of three positions. Perhaps the encoding of the human gene is only on one of these reading frames at a time and not all 3. </span>
+
+<span style="color:green">5.1 
+<span style="color:blue"> 
+cp -r /project2/bios11141/CompAsn7/CompAsn7source-updated.R /project2/bios11141/CompAsn7/job-submit-updated.sh /project2/bios11141/CompAsn7/Homo_sapiens_Chr* ~/CompAns7
+\span
+
+<span style="color:green">5.2 
+<span style="color:blue"> looking at the code, we notice that it going through each of the args, taking in which integer (number) of the fasta file is, and then reading in the files of those integers, and outputting it out into csv files formatted by those integers. These integers are the chromosome numbers. </span>
+
+
+<span style="color:green">5.3 
+<span style="color:blue"> 
+Rinfile="./CompAsn7source-updated.R"
+Run R </br>
+for chr in Homo_sapiens_Chr*.fasta:</br>
+do</br>
+Rscript $Rinfile chr</br>
+done
+</span>
+
